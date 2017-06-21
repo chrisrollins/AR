@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Algo Roulette</title>
+	<script type="text/javascript">
+	
+	(function()
+	{		
+		"use strict";
+		const lang_suggestions = ["C", "C++", "C#", "Java", "JavaScript", "Rust", "Go", "Python"];
+		const algo_suggestions = ["Linked List", "Binary Search Tree", "Queue", "Stack", "Hashmap", "Quick Sort", "Merge Sort", "Insertion Sort"];
+
+		const state = JSON.parse(localStorage.AlgoRoulette || '{"algos": [], "langs": []}');
+		let langInput, algoInput, langOutput, algoOutput, suggestions;
+		const lists = {
+			algo: new Set(state.algos),
+			lang: new Set(state.langs)
+		};
+
+		const roll = function(from, to)
+		{
+			return ~~(Math.random()*( to - from + 1) ) + from;
+		};
+
+		const randomFromArray = function(arr)
+		{
+			return arr[roll(0, arr.length - 1)];
+		};
+
+		const randomFromSet = function(set)
+		{
+			return randomFromArray(Array.from(set.keys()));
+		};
+
+		const suggest = function(listName)
+		{
+			suggestions.style.display = "block";
+		}
+
+		const updateDisplay = function(listName)
+		{	
+			if(lists[listName].size > 0)
+			{
+				const list = document.querySelector(`#${listName}_list`);
+				list.innerHTML = "";
+				const fragment = document.createDocumentFragment();
+				for(const item of lists[listName])
+				{
+					const div = document.createElement("div");
+					div.innerText = item;
+					fragment.appendChild(div);
+				}
+				list.appendChild(fragment);
+			}
+			else
+			{
+				suggest(listName);
+			}
+		}
+
+		const updateList = function(listName, method, value)
+		{
+			if(value !== "")
+			{
+				lists[listName][method](value);
+				const langsArr = Array.from(lists.lang.keys());
+				const algosArr = Array.from(lists.algo.keys());
+				localStorage.AlgoRoulette = `{"algos": ${JSON.stringify(algosArr)}, "langs": ${JSON.stringify(langsArr)} }`;
+				updateDisplay(listName);
+			}
+		}
+
+		const clickEvents = {
+			add_lang_button: function(e)
+			{
+				updateList("lang", "add", langInput.value);
+			},
+			add_algo_button: function(e)
+			{
+				updateList("algo", "add", algoInput.value);
+			},
+			remove_lang_button: function(e)
+			{
+				updateList("lang", "delete", langInput.value);
+			},
+			remove_algo_button: function(e)
+			{
+				updateList("algo", "delete", algoInput.value);
+			},
+			roll_button: function(e)
+			{
+				let start = roll(40, 60);
+				let count = start;
+				let delay = 100;
+				let modifier = 1;
+				(function spin()
+				{
+					setTimeout(function()
+					{
+						langOutput.innerText = randomFromSet(lists.lang);
+						algoOutput.innerText = randomFromSet(lists.algo);
+						modifier = start/(((count*count)) + 7);
+						if(count-- > 0)
+							{ spin(); }
+					}, ~~(delay * modifier));
+				})();
+			},
+			suggestions_load_button: function(e)
+			{
+				for(const lang of lang_suggestions)
+				{
+					updateList("lang", "add", lang);
+				}
+				for(const algo of algo_suggestions)
+				{
+					updateList("algo", "add", algo);
+				}
+				suggestions.style.display = "none";
+			},
+			suggestions_decline_button: function(e)
+			{
+				suggestions.style.display = "none";
+			}
+		};
+
+		onload = function()
+		{
+			langInput = document.querySelector("#lang_input");
+			algoInput = document.querySelector("#algo_input");
+			langOutput = document.querySelector("#lang_output");
+			algoOutput = document.querySelector("#algo_output");
+			suggestions = document.querySelector("#suggestions");
+			updateDisplay("algo");
+			updateDisplay("lang");
+		};
+
+		onmouseup = function(e)
+		{
+			(clickEvents[e.target.id] || function(){})();	
+		};
+
+	})();
+	</script>
+	<style type="text/css">
+		*{
+			margin: 0px;
+			padding: 0px;
+			background-color: #000;
+			color: #fff;
+		}
+		#top_bar
+		{
+			height: 100px;
+		}
+		#roller, #lists{
+			display:flex;
+			background-color: #000;
+			color: #fff;
+			justify-content:center;
+			align-items:center;
+			width: 100%;
+			min-height: 20vh;
+		}
+		#roller table
+		{
+			width: 600px;
+			height: 200px;
+			padding: 10px;
+		}
+		#lists table
+		{
+			width: 600px;
+		}
+		#lists th, #lists td
+		{
+			width: 50%;
+		}
+		td
+		{
+			text-align: center;
+		}
+		th
+		{
+			height: 30px;
+			border-bottom: dashed 1px #555;
+		}
+		button
+		{
+			border-radius: 7px;
+			border: solid 1px #777;
+			outline: none;
+			min-width: 50px;
+			height: 25px;
+		}
+		#algo_output
+		{
+			width: 200px;
+		}
+		#lang_output
+		{
+			transition: filter 500ms;
+			width: 100px;
+		}
+		#roll_button
+		{
+			width: 80px;
+			height: 25px;
+		}
+		.list_input_item
+		{
+			width: 95%;
+			height: 25px;
+			border: 1px solid #555;
+		}
+		#suggestions
+		{
+			display: none;
+			position: fixed;
+			top: 40vh;
+			left: 40vw;
+			height: 150px;
+			width: 20vw;
+			/*border: 1px solid #999;*/
+			border-radius: 10px;
+			justify-content:center;
+			align-items:center;
+			background-color: #ccccdd;
+			overflow: hidden;
+		}
+		#suggestions table
+		{
+			width: 100%;
+		}
+		#suggestions *
+		{
+			background-color: #ccccdd;
+			color: #222;
+			border: none;
+		}
+		#suggestions table th
+		{
+			height: 100px;
+		}
+		#suggestions button
+		{
+			padding: 0px 10px;
+			border: 1px solid #555;
+		}
+	</style>
+</head>
+<body>
+	<div id="top_bar"></div>
+	<div id="roller">
+		<table>
+			<tr>
+				<th colspan="5">
+					AlgoRoulette
+				</th>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<input type="text" class="list_input_item" id="lang_input" placeholder="   Language">
+				</td>
+				<td>
+					<button class="list_input_item" id="add_lang_button">Add Language</button>
+				</td>
+				<td>
+					<button class="list_input_item" id="remove_lang_button">Remove Language</button>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<input type="text" class="list_input_item" id="algo_input" placeholder="   Algorithm, Data Structure, etc...">
+				</td>
+				<td>
+					<button class="list_input_item" id="add_algo_button">Add Challenge</button>
+				</td>
+				<td>
+					<button class="list_input_item" id="remove_algo_button">Remove Challenge</button>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" id="algo_output">
+					Roll to see what you get!
+				</td>
+				<td id="lang_output">
+					
+				</td>
+				<td colspan="2">
+					<button id="roll_button">Roll</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="lists">
+		<table>
+			<tr>
+				<th>
+					Languages
+				</th>
+				<th>
+					Challenges
+				</th>
+			</tr>
+			<tr>
+				<td id="lang_list">
+
+				</td>
+				<td id="algo_list">
+				
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="suggestions">
+		<table>
+			<tr>
+				<th colspan="2">Need help getting started? Try the suggestions.</th>
+			</tr>
+			<tr>
+				<td>
+					<button id="suggestions_load_button">Give me the Suggestions!</button>
+				</td>
+				<td>
+					<button id="suggestions_decline_button">No thanks</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
