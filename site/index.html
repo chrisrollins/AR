@@ -8,7 +8,7 @@
 	{		
 		"use strict";
 		const lang_suggestions = ["C", "C++", "C#", "Java", "JavaScript", "Rust", "Go", "Python"];
-		const algo_suggestions = ["Linked List", "Binary Search Tree", "Queue", "Stack", "Hashmap", "Quick Sort", "Merge Sort", "Insertion Sort"];
+		const algo_suggestions = ["Linked List", "Binary Search Tree", "Trie", "Queue", "Stack", "Hashmap", "Quick Sort", "Merge Sort", "Insertion Sort"];
 
 		const state = JSON.parse(localStorage.AlgoRoulette || '{"algos": [], "langs": []}');
 		let langInput, algoInput, langOutput, algoOutput, suggestions;
@@ -32,17 +32,12 @@
 			return randomFromArray(Array.from(set.keys()));
 		};
 
-		const suggest = function(listName)
-		{
-			suggestions.style.display = "block";
-		}
-
 		const updateDisplay = function(listName)
 		{	
+			const list = document.querySelector(`#${listName}_list`);
+			list.innerHTML = "";
 			if(lists[listName].size > 0)
 			{
-				const list = document.querySelector(`#${listName}_list`);
-				list.innerHTML = "";
 				const fragment = document.createDocumentFragment();
 				for(const item of lists[listName])
 				{
@@ -51,10 +46,7 @@
 					fragment.appendChild(div);
 				}
 				list.appendChild(fragment);
-			}
-			else
-			{
-				suggest(listName);
+				return true;
 			}
 		}
 
@@ -93,17 +85,45 @@
 				let count = start;
 				let delay = 100;
 				let modifier = 1;
-				(function spin()
+				if(lists.lang.size > 0 && lists.algo.size > 0)
+				{ spin(); }
+				else
+				{
+					if(lists.lang.size === 0)
+					{ langOutput.innerText = "Add some languages first."; }
+					else if(lists.lang.size === 1)
+					{ langOutput.innerText = "Add more than one, pussy."; }
+					else
+					{  langOutput.innerText = ""; }
+
+					if(lists.algo.size === 0)
+					{ algoOutput.innerText = "Add some challenges first."; }
+					else
+					{ algoOutput.innerText = ""; }
+				}
+
+				function spin()
 				{
 					setTimeout(function()
 					{
 						langOutput.innerText = randomFromSet(lists.lang);
 						algoOutput.innerText = randomFromSet(lists.algo);
+						langOutput.style = "";
+						algoOutput.style = "";
 						modifier = start/(((count*count)) + 7);
 						if(count-- > 0)
 							{ spin(); }
+						else
+							{
+								const style = {
+									"font-weight":"bold",
+									"color":"#33ff55"
+								}
+								Object.assign(langOutput.style, style);
+								Object.assign(algoOutput.style, style);
+							}
 					}, ~~(delay * modifier));
-				})();
+				}
 			},
 			suggestions_load_button: function(e)
 			{
@@ -120,6 +140,11 @@
 			suggestions_decline_button: function(e)
 			{
 				suggestions.style.display = "none";
+			},
+			clear_button: function(e)
+			{
+				updateList("algo", "clear", undefined);
+				updateList("lang", "clear", undefined);
 			}
 		};
 
@@ -130,13 +155,12 @@
 			langOutput = document.querySelector("#lang_output");
 			algoOutput = document.querySelector("#algo_output");
 			suggestions = document.querySelector("#suggestions");
-			updateDisplay("algo");
-			updateDisplay("lang");
+			suggestions.style.display = (!updateDisplay("algo") || !updateDisplay("lang"))?"block":"none";
 		};
 
 		onmouseup = function(e)
 		{
-			(clickEvents[e.target.id] || function(){})();	
+			( clickEvents[e.target.id] || function(){} )();	
 		};
 
 	})();
@@ -192,6 +216,10 @@
 			min-width: 50px;
 			height: 25px;
 		}
+		button:active
+		{
+			background-color: #fff;
+		}
 		#algo_output
 		{
 			width: 200px;
@@ -220,7 +248,6 @@
 			left: 40vw;
 			height: 150px;
 			width: 20vw;
-			/*border: 1px solid #999;*/
 			border-radius: 10px;
 			justify-content:center;
 			align-items:center;
@@ -241,7 +268,7 @@
 		{
 			height: 100px;
 		}
-		#suggestions button
+		#suggestions button, #clear_button
 		{
 			padding: 0px 10px;
 			border: 1px solid #555;
@@ -310,6 +337,7 @@
 				
 				</td>
 			</tr>
+			<tr><td colspan="2"><button id="clear_button">Remove All</button></td></tr>
 		</table>
 	</div>
 	<div id="suggestions">
