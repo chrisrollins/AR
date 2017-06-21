@@ -149,14 +149,14 @@
 
 		onload = function()
 		{
-			langInput = document.querySelector("#lang_input");
-			algoInput = document.querySelector("#algo_input");
-			langOutput = document.querySelector("#lang_output");
-			algoOutput = document.querySelector("#algo_output");
-			suggestions = document.querySelector("#suggestions");
+			langInput = lang_input;
+			algoInput = algo_input;
+			langOutput = lang_output;
+			algoOutput = algo_output;
+			suggestions = suggestion_popup;
 			suggestions.style.display = (!updateDisplay("algo") || !updateDisplay("lang"))?"block":"none";
-			const compatibilityChecker = document.querySelector("#top_bar");
-			top_bar.innerHTML = "";
+			const compatibilityChecker = top_bar;
+			compatibilityChecker.innerHTML = "";
 		};
 
 		onmouseup = function(e)
@@ -241,7 +241,7 @@
 			height: 25px;
 			border: 1px solid #555;
 		}
-		#suggestions
+		#suggestion_popup
 		{
 			display: none;
 			position: fixed;
@@ -255,21 +255,21 @@
 			background-color: #ccccdd;
 			overflow: hidden;
 		}
-		#suggestions table
+		#suggestion_popup table
 		{
 			width: 100%;
 		}
-		#suggestions *
+		#suggestion_popup *
 		{
 			background-color: #ccccdd;
 			color: #222;
 			border: none;
 		}
-		#suggestions table th
+		#suggestion_popup table th
 		{
 			height: 100px;
 		}
-		#suggestions button, #clear_button
+		#suggestion_popup button, #clear_button
 		{
 			padding: 0px 10px;
 			border: 1px solid #555;
@@ -341,7 +341,7 @@
 			<tr><td colspan="2"><button id="clear_button">Remove All</button></td></tr>
 		</table>
 	</div>
-	<div id="suggestions">
+	<div id="suggestion_popup">
 		<table>
 			<tr>
 				<th colspan="2">Need help getting started? Try the suggestions.</th>
