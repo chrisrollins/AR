@@ -156,6 +156,8 @@
 			algoOutput = document.querySelector("#algo_output");
 			suggestions = document.querySelector("#suggestions");
 			suggestions.style.display = (!updateDisplay("algo") || !updateDisplay("lang"))?"block":"none";
+			const compatibilityChecker = document.querySelector("#top_bar");
+			top_bar.innerHTML = "";
 		};
 
 		onmouseup = function(e)
@@ -276,7 +278,7 @@
 	</style>
 </head>
 <body>
-	<div id="top_bar"></div>
+	<div id="top_bar"><h2>If you see this message, you may need to upgrade your browser or enable JavaScript.</h2></div>
 	<div id="roller">
 		<table>
 			<tr>
